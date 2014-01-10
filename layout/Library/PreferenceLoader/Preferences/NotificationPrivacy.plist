@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>entry</key>
+	<dict>
+		<key>cell</key>
+		<string>PSLinkCell</string>
+		<key>icon</key>
+		<string>/Library/PreferenceLoader/Preferences/notificationprivacy.png</string>
+		<key>label</key>
+		<string>Notification Privacy</string>
+	</dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Enter the text you would like hidden push notifications to display.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+            <string>PSEditTextCell</string>
+            <key>defaults</key>
+            <string>com.dpkgdan.notificationprivacy</string>
+            <key>key</key>
+            <string>NotificationText</string>
+            <key>label</key>
+            <string>Notification Text:</string>
+            <key>default</key>
+            <string>New Notification</string>
+            <key>PostNotification</key>
+            <string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Select which apps hide push notification text.</string>
+		</dict>
+		<dict>
+			<key>ALChangeNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+			<key>ALSectionDescriptors</key>
+			<array>
+				<dict>
+					<key>footer-title</key>
+					<string>Select which apps hide push notification text.</string>
+					<key>items</key>
+					<array/>
+				</dict>
+				<dict>
+					<key>cell-class-name</key>
+					<string>ALSwitchCell</string>
+					<key>icon-size</key>
+					<string>29</string>
+					<key>predicate</key>
+					<string>isSystemApplication = TRUE AND isWebApplication = FALSE</string>
+					<key>suppress-hidden-apps</key>
+					<string>1</string>
+					<key>title</key>
+					<string>System Applications</string>
+				</dict>
+				<dict>
+					<key>cell-class-name</key>
+					<string>ALSwitchCell</string>
+					<key>icon-size</key>
+					<string>29</string>
+					<key>predicate</key>
+					<string>isSystemApplication = FALSE AND isWebApplication = FALSE</string>
+					<key>suppress-hidden-apps</key>
+					<string>1</string>
+					<key>title</key>
+					<string>User Applications</string>
+				</dict>
+			</array>
+			<key>ALSettingsDefaultValue</key>
+			<string>0</string>
+			<key>ALSettingsKeyPrefix</key>
+			<string></string>
+			<key>ALSettingsPath</key>
+			<string>/var/mobile/Library/Preferences/com.dpkgdan.notificationprivacy.plist</string>
+			<key>bundle</key>
+			<string>AppList</string>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>isController</key>
+			<string>1</string>
+			<key>label</key>
+			<string>Notification Privacy</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>© 2014 Dan Saba</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>Notification Privacy</string>
+</dict>
+</plist>
