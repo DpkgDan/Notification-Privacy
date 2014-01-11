@@ -102,7 +102,7 @@
 			<key>isController</key>
 			<string>1</string>
 			<key>label</key>
-			<string>Notification Privacy</string>
+			<string>Hidden Apps</string>
 		</dict>
 		<dict>
 			<key>cell</key>

@@ -139,6 +139,8 @@ BOOL isMobileMail(NSString *identifier)
     }
 }
 
+%end
+
 %ctor
 {
     @autoreleasepool {
@@ -151,5 +153,3 @@ BOOL isMobileMail(NSString *identifier)
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, displayStatusChanged, CFSTR("com.apple.springboard.lockstate"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
     }
 }
-
-%end
