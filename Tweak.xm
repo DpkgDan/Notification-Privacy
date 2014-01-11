@@ -2,11 +2,14 @@
 #import <CoreFoundation/CoreFoundation.h>
 
 #define FILEPATH @"/var/mobile/Library/Preferences/com.dpkgdan.notificationprivacy.plist"
+#define DEFAULT_TEXT @"New Notification"
 
 %hook BBBulletin
 
 static NSDictionary *preferenceFile;
 static NSString *notificationText;
+static BOOL isEnabled;
+static BOOL isLockScreen = YES;
 
 void loadFromFile()
 {
@@ -15,12 +18,20 @@ void loadFromFile()
     if ([[NSFileManager defaultManager] fileExistsAtPath: FILEPATH]){
         preferenceFile = [[NSDictionary alloc] initWithContentsOfFile: FILEPATH];
         
-        notificationText = [preferenceFile objectForKey: @"NotificationText"];
-        if (!notificationText)
-            notificationText = @"New Notification";
+        NSArray *allKeys = [preferenceFile allKeys];
+        
+        if ([allKeys containsObject: @"NotificationText"])
+            notificationText = [preferenceFile objectForKey: @"NotificationText"];
+        else
+            notificationText = DEFAULT_TEXT;
+
+        if ([allKeys containsObject: @"isEnabled"])
+            isEnabled = [[preferenceFile objectForKey: @"isEnabled"] boolValue];
+        else
+            isEnabled = YES;
 
     } else {
-        notificationText = @"New Notification";
+        isEnabled = NO;
     }
 }
 
@@ -35,14 +46,15 @@ void update (
     loadFromFile();
 }
 
--(id)init
+void displayStatusChanged (
+    CFNotificationCenterRef center,
+    void *observer,
+    CFStringRef name,
+    const void *object,
+    CFDictionaryRef userInfo
+)
 {
-    if (preferenceFile == NULL){
-        loadFromFile();
-
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.settingsupdated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-    }
-    return %orig;
+    isLockScreen = !isLockScreen;
 }
 
 /* //For debugging
@@ -90,32 +102,54 @@ BOOL isMobileMail(NSString *identifier)
 
 -(void)setSectionID:(NSString*)arg1
 {
-    if (isMobileMail(arg1)){
-        [self setSubtitle: notificationText];
-        [self setMessage: @" "];
-    } else if (isHiddenIdentifier(arg1)){
-        [self setMessage: notificationText];
+    if (isEnabled){
+        if (isMobileMail(arg1)){
+            [self setSubtitle: notificationText];
+            [self setMessage: @" "];
+        } else if (isHiddenIdentifier(arg1)){
+            [self setMessage: notificationText];
+        }
     }
-    
     %orig(arg1);
 }
 
 -(BOOL)suppressesMessageForPrivacy
 {
-    if (isMobileSMS([self sectionID]))
-        return NO;
-    else
+    if (isEnabled){
+        if (isMobileSMS([self sectionID]))
+            return NO;
+        else
+            return %orig;
+    } else {
         return %orig;
+    }
 }
 
 -(BBAttachments*)attachments
 {
-    NSString *identifier = [self sectionID];
+    if (isEnabled){
+        NSString *identifier = [self sectionID];
 
-    if (isMobileSMS(identifier) || isMobileMail(identifier))
-        return Nil;
-    else
+        if (isMobileSMS(identifier) || isMobileMail(identifier))
+            return Nil;
+        else
+            return %orig;
+    } else {
         return %orig;
+    }
+}
+
+%ctor
+{
+    @autoreleasepool {
+        loadFromFile();
+
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.settingsupdated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+        
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.enabled"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+        
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, displayStatusChanged, CFSTR("com.apple.springboard.lockstate"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+    }
 }
 
 %end
