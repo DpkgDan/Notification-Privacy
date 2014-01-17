@@ -6,7 +6,6 @@ static NSDictionary *_preferenceFile;
 static NSString *_notificationText;
 static NSString *DEFAULT_TEXT = @"New Notification";
 
-static BOOL _hasBeenConstructed = NO;
 static BOOL _isEnabled;
 
 static BOOL _hiddenOnLockscreen;
@@ -21,11 +20,6 @@ NSDictionary* preferenceFile()
 NSString* notificationText()
 {
     return _notificationText;
-}
-
-BOOL hasBeenConstructed()
-{
-    return _hasBeenConstructed;
 }
 
 BOOL isEnabled()
@@ -120,7 +114,6 @@ BOOL isMobileMail(NSString *identifier)
 
 void constructor()
 {
-    _hasBeenConstructed = YES;
     loadSettings();
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.settingsupdated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
