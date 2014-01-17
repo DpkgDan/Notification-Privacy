@@ -1,10 +1,13 @@
 ARCHS = armv7 arm64
+
 ADDITIONAL_OBJCFLAGS = -fobjc-arc
 
 include theos/makefiles/common.mk
 
 TWEAK_NAME = NotificationPrivacy
-NotificationPrivacy_FILES = Tweak.xm
+
+NotificationPrivacy_FILES = MessageData.m Utilities.xm Tweak.xm
+
 NotificationPrivacy_PRIVATE_FRAMEWORKS = BulletinBoard
 
 include $(THEOS_MAKE_PATH)/tweak.mk

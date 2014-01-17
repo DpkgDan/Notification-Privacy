@@ -1,155 +1,227 @@
-#import "BBBulletin.h"
-#import <CoreFoundation/CoreFoundation.h>
+#import "Headers/Headers.h"
 
-#define FILEPATH @"/var/mobile/Library/Preferences/com.dpkgdan.notificationprivacy.plist"
-#define DEFAULT_TEXT @"New Notification"
+static NSRecursiveLock *lock = [NSRecursiveLock new];
+static NSMutableDictionary *identifierForMsgData = [NSMutableDictionary new];
+
+static void addToDict(BBBulletin* bulletin)
+{
+    @autoreleasepool {
+        NSLog(@"Call to addToDict()");
+
+        NSString *message = [[bulletin message] copy];
+        NSString *subtitle = [[bulletin subtitle] copy];
+        BBAttachments *attachments = [[bulletin attachments] copy];
+        NSString *sectionID = [[bulletin sectionID] copy];
+        
+        [lock lock];
+        NSLog(@"Lock obtained: addToDict()");
+
+        if (![identifierForMsgData objectForKey: bulletin.bulletinID]){
+            MessageData *messageData = [[MessageData alloc] initWithMessage: message subtitle: subtitle attachments: attachments sectionID: sectionID];
+            [identifierForMsgData setObject: messageData forKey: bulletin.bulletinID];
+        }
+
+        [lock unlock];
+        NSLog(@"Lock released: addToDict()");
+    }
+}
+
+static BBBulletin* hideBulletinContent(BBBulletin *bulletin)
+{
+    BBBulletin *bulletinCopy = [bulletin copy];
+    BBContent *contentCopy = [bulletin.content copy];
+
+    contentCopy.message = notificationText();
+    contentCopy.subtitle = Nil;
+    bulletinCopy.attachments = Nil;
+    
+    bulletinCopy.content = contentCopy;
+    return bulletinCopy;
+}
+
+static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
+{
+    @autoreleasepool {
+        [lock lock];
+        NSLog(@"Lock obtained: restoreBulletinContent()");
+
+        MessageData *messageData = [identifierForMsgData objectForKey: [bulletin bulletinID]];
+
+        if (messageData){
+            BBBulletin *bulletinCopy = [bulletin copy];
+            BBContent *contentCopy = [bulletin.content copy];
+
+            contentCopy.message = messageData.message;
+            contentCopy.subtitle = messageData.subtitle;
+            bulletin.attachments = messageData.attachments;
+            
+            bulletinCopy.content = contentCopy;
+            bulletin = bulletinCopy;
+        }
+
+        [lock unlock];
+        NSLog(@"Lock released: restoreBulletinContent()");
+        
+        return bulletin;
+    }
+}
 
 %hook BBBulletin
 
-static NSDictionary *preferenceFile;
-static NSString *notificationText;
-static BOOL isEnabled;
-static BOOL isLockScreen = YES;
-
-void loadFromFile()
+-(id)initWithCoder:(id)coder
 {
-    preferenceFile = NULL;
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath: FILEPATH]){
-        preferenceFile = [[NSDictionary alloc] initWithContentsOfFile: FILEPATH];
+    if (isEnabled() && (hiddenOnHomescreen() || allHidden())){
+        self = %orig();
+
+        if (!allHidden())
+            addToDict(self);
         
-        NSArray *allKeys = [preferenceFile allKeys];
-        
-        if ([allKeys containsObject: @"NotificationText"])
-            notificationText = [preferenceFile objectForKey: @"NotificationText"];
-        else
-            notificationText = DEFAULT_TEXT;
-
-        if ([allKeys containsObject: @"isEnabled"])
-            isEnabled = [[preferenceFile objectForKey: @"isEnabled"] boolValue];
-        else
-            isEnabled = YES;
-
-    } else {
-        isEnabled = NO;
-    }
-}
-
-void update (
-    CFNotificationCenterRef center,
-    void *observer,
-    CFStringRef name,
-    const void *object,
-    CFDictionaryRef userInfo
-)
-{
-    loadFromFile();
-}
-
-void displayStatusChanged (
-    CFNotificationCenterRef center,
-    void *observer,
-    CFStringRef name,
-    const void *object,
-    CFDictionaryRef userInfo
-)
-{
-    isLockScreen = !isLockScreen;
-}
-
-/* //For debugging
--(id)initWithCoder:(id)arg1
-{
-    self = %orig(arg1);
-    NSLog(@"%@", [self description]);
-    return self;
-} */
-
-BOOL isHiddenIdentifier(NSString *identifier)
-{
-    if (preferenceFile == NULL)
-        return NO;
-    if ([[preferenceFile objectForKey: identifier] boolValue])
-        return YES;
-    else
-        return NO;
-}
-
-BOOL isMatch(NSString *matchString, NSString *identifier)
-{
-    if ([identifier isEqualToString: matchString] &&
-    isHiddenIdentifier(identifier))
-        return YES;
-    else
-        return NO;
-}
-
-BOOL isMobileSMS(NSString *identifier)
-{
-    if (isMatch(@"com.apple.MobileSMS", identifier))
-        return YES;
-    else
-        return NO;
-}
-
-BOOL isMobileMail(NSString *identifier)
-{
-    if (isMatch(@"com.apple.mobilemail", identifier))
-        return YES;
-    else
-        return NO;
-}
-
--(void)setSectionID:(NSString*)arg1
-{
-    if (isEnabled){
-        if (isMobileMail(arg1)){
-            [self setSubtitle: notificationText];
+        if (isMobileMail([self sectionID])){
             [self setMessage: @" "];
-        } else if (isHiddenIdentifier(arg1)){
-            [self setMessage: notificationText];
+            [self setSubtitle: notificationText()];
+            [self setAttachments: Nil];
+        } else if (isHiddenIdentifier([self sectionID])){
+            [self setMessage: notificationText()];
+            [self setAttachments: Nil];
         }
-    }
-    %orig(arg1);
+        return self;
+
+    } else
+        return %orig();
 }
 
--(BOOL)suppressesMessageForPrivacy
+%end
+
+%hook SBLockScreenNotificationListController
+
+- (void)observer:(id)arg1 addBulletin:(BBBulletin*)bulletin forFeed:(unsigned long long)arg3
 {
-    if (isEnabled){
-        if (isMobileSMS([self sectionID]))
-            return NO;
-        else
+    if (isEnabled()){
+        if (hiddenOnHomescreen() && !hiddenOnLockscreen())
+            bulletin = restoreBulletinContent(bulletin);
+        else if (hiddenOnLockscreen() && !allHidden())
+            bulletin = hideBulletinContent(bulletin);
+    }
+    %orig();
+}
+
+%end
+
+%hook SBNotificationsAllModeBulletinInfo
+
+-(id)_secondaryText
+{
+    @autoreleasepool {
+        if (isEnabled()){
+            [lock lock];
+            NSLog(@"Lock obtained: _secondaryText");
+
+            MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
+
+            if (hiddenOnHomescreen() && !hiddenInNotifcenter()){
+                NSString *message;
+
+                if (messageData)
+                    message = messageData.message;
+                else
+                    message = %orig;
+
+                [lock unlock];
+                NSLog(@"Lock released: _secondaryText");
+
+                return message;
+            } else if (hiddenInNotifcenter() && !allHidden() && isHiddenIdentifier(messageData.sectionID)){
+                [lock unlock];
+                return notificationText();
+            } else {
+                [lock unlock];
+                return %orig;
+            }
+        } else
             return %orig;
-    } else {
-        return %orig;
     }
 }
 
--(BBAttachments*)attachments
+-(id)_subtitleText
 {
-    if (isEnabled){
-        NSString *identifier = [self sectionID];
+    @autoreleasepool {
+        if (isEnabled()){
+            [lock lock];
+            NSLog(@"Lock obtained: _subtitleText");
+            
+            MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
 
-        if (isMobileSMS(identifier) || isMobileMail(identifier))
-            return Nil;
-        else
+            if (hiddenOnHomescreen() && !hiddenInNotifcenter()){
+                NSString *subtitle;
+
+                if (messageData)
+                    subtitle = messageData.subtitle;
+                else
+                    subtitle = %orig;
+                
+                [lock unlock];
+                NSLog(@"Lock released: _subtitleText");
+
+                return subtitle;
+            } else if (hiddenInNotifcenter() && !allHidden()){
+                if (isMobileMail(messageData.sectionID)){
+                    [lock unlock];
+                    return notificationText();
+                }
+                else if (isHiddenIdentifier(messageData.sectionID)){
+                    [lock unlock];
+                    return Nil;
+                } else
+                    return %orig;
+            } else
+                return %orig;
+        } else
             return %orig;
-    } else {
-        return %orig;
     }
+}
+
+-(id)_attachmentImageToDisplay
+{
+    [lock lock];
+    NSLog(@"Lock obtained: _attachmentImageToDisplay");
+    
+    MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
+    BBAttachments *attachments = messageData.attachments;
+    
+    for (id object in attachments.clientSideComposedImageInfos)
+        NSLog(@"Object description: %@", [object description]);
+
+    [lock unlock];
+    NSLog(@"Lock released: _attachmentImageToDiplay");
+
+    return %orig();
+}
+
+%end
+
+%hook SBNotificationsAllModeViewController
+
+- (void)commitRemovalOfBulletin:(SBNotificationsAllModeBulletinInfo*)info fromSection:(id)arg2
+{
+    if (isEnabled()){
+        NSLog(@"METHOD 3");
+        
+        [lock lock];
+        NSLog(@"Lock obtained: commitRemovalOfBulletin");
+
+        [identifierForMsgData removeObjectForKey: [info identifier]];
+        
+        [lock unlock];
+        
+        NSLog(@"Lock released: commitRemovalOfBulletin");
+    }
+    
+    %orig();
 }
 
 %end
 
 %ctor
 {
-    @autoreleasepool {
-        loadFromFile();
-
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.settingsupdated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-        
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, update, CFSTR("com.dpkgdan.notificationprivacy.enabled"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-        
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, displayStatusChanged, CFSTR("com.apple.springboard.lockstate"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-    }
+    constructor();
 }

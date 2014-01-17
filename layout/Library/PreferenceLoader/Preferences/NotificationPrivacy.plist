@@ -15,12 +15,6 @@
 	<array>
 		<dict>
 			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Enter the text you would like hidden push notifications to display.</string>
-		</dict>
-		<dict>
-			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
 			<true/>
@@ -32,6 +26,60 @@
 			<string>Enabled</string>
 			<key>PostNotification</key>
 			<string>com.dpkgdan.notificationprivacy.enabled</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>key</key>
+			<string>hiddenOnLockscreen</string>
+			<key>label</key>
+			<string>Hidden on Lockscreen</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>key</key>
+			<string>hiddenOnHomescreen</string>
+			<key>label</key>
+			<string>Hidden on Homescreen</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>key</key>
+			<string>hiddenInNotifcenter</string>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>label</key>
+			<string>Hidden in Notification Center</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Enter the text you would like hidden push notifications to display.</string>
 		</dict>
 		<dict>
 			<key>cell</key>
