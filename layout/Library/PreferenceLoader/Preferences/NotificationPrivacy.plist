@@ -25,7 +25,7 @@
 			<key>label</key>
 			<string>Enabled</string>
 			<key>PostNotification</key>
-			<string>com.dpkgdan.notificationprivacy.enabled</string>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
 		</dict>
 		<dict>
 			<key>cell</key>
