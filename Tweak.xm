@@ -6,15 +6,12 @@ static NSMutableDictionary *identifierForMsgData = [NSMutableDictionary new];
 static void addToDict(BBBulletin* bulletin)
 {
     @autoreleasepool {
-        NSLog(@"Call to addToDict()");
-
         NSString *message = [[bulletin message] copy];
         NSString *subtitle = [[bulletin subtitle] copy];
         BBAttachments *attachments = [[bulletin attachments] copy];
         NSString *sectionID = [[bulletin sectionID] copy];
         
         [lock lock];
-        NSLog(@"Lock obtained: addToDict()");
 
         if (![identifierForMsgData objectForKey: bulletin.bulletinID]){
             MessageData *messageData = [[MessageData alloc] initWithMessage: message subtitle: subtitle attachments: attachments sectionID: sectionID];
@@ -22,7 +19,6 @@ static void addToDict(BBBulletin* bulletin)
         }
 
         [lock unlock];
-        NSLog(@"Lock released: addToDict()");
     }
 }
 
@@ -43,7 +39,6 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
 {
     @autoreleasepool {
         [lock lock];
-        NSLog(@"Lock obtained: restoreBulletinContent()");
 
         MessageData *messageData = [identifierForMsgData objectForKey: [bulletin bulletinID]];
 
@@ -60,7 +55,6 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
         }
 
         [lock unlock];
-        NSLog(@"Lock released: restoreBulletinContent()");
         
         return bulletin;
     }
@@ -114,7 +108,6 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
     @autoreleasepool {
         if (isEnabled()){
             [lock lock];
-            NSLog(@"Lock obtained: _secondaryText");
 
             MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
 
@@ -127,9 +120,8 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
                     message = %orig;
 
                 [lock unlock];
-                NSLog(@"Lock released: _secondaryText");
-
                 return message;
+
             } else if (hiddenInNotifcenter() && !allHidden() && isHiddenIdentifier(messageData.sectionID)){
                 [lock unlock];
                 return notificationText();
@@ -147,7 +139,6 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
     @autoreleasepool {
         if (isEnabled()){
             [lock lock];
-            NSLog(@"Lock obtained: _subtitleText");
             
             MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
 
@@ -160,9 +151,8 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
                     subtitle = %orig;
                 
                 [lock unlock];
-                NSLog(@"Lock released: _subtitleText");
-
                 return subtitle;
+
             } else if (hiddenInNotifcenter() && !allHidden()){
                 if (isMobileMail(messageData.sectionID)){
                     [lock unlock];
@@ -180,7 +170,7 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
     }
 }
 
--(id)_attachmentImageToDisplay
+/* -(id)_attachmentImageToDisplay
 {
     [lock lock];
     NSLog(@"Lock obtained: _attachmentImageToDisplay");
@@ -195,7 +185,7 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
     NSLog(@"Lock released: _attachmentImageToDiplay");
 
     return %orig();
-}
+} */
 
 %end
 
@@ -204,18 +194,12 @@ static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
 - (void)commitRemovalOfBulletin:(SBNotificationsAllModeBulletinInfo*)info fromSection:(id)arg2
 {
     if (isEnabled()){
-        NSLog(@"METHOD 3");
-        
         [lock lock];
-        NSLog(@"Lock obtained: commitRemovalOfBulletin");
 
         [identifierForMsgData removeObjectForKey: [info identifier]];
         
         [lock unlock];
-        
-        NSLog(@"Lock released: commitRemovalOfBulletin");
     }
-    
     %orig();
 }
 
