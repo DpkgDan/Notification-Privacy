@@ -1,206 +1,128 @@
 #import "Headers/Headers.h"
 
-static NSRecursiveLock *lock = [NSRecursiveLock new];
-static NSMutableDictionary *identifierForMsgData = [NSMutableDictionary new];
+/** HOMESCREEN **/
 
-static void addToDict(BBBulletin* bulletin)
+%hook SBBulletinBannerItem
+
+%new
+-(NSString*)sectionID
 {
-    @autoreleasepool {
-        NSString *message = [[bulletin message] copy];
-        NSString *subtitle = [[bulletin subtitle] copy];
-        BBAttachments *attachments = [[bulletin attachments] copy];
-        NSString *sectionID = [[bulletin sectionID] copy];
-        
-        [lock lock];
-
-        if (![identifierForMsgData objectForKey: bulletin.bulletinID]){
-            MessageData *messageData = [[MessageData alloc] initWithMessage: message subtitle: subtitle attachments: attachments sectionID: sectionID];
-            [identifierForMsgData setObject: messageData forKey: bulletin.bulletinID];
-        }
-
-        [lock unlock];
-    }
+	return [[self seedBulletin] sectionID];
 }
 
-static BBBulletin* hideBulletinContent(BBBulletin *bulletin)
+%new
+-(BOOL)shouldHideBulletin
 {
-    BBBulletin *bulletinCopy = [bulletin copy];
-    BBContent *contentCopy = [bulletin.content copy];
-
-    contentCopy.message = notificationText();
-    contentCopy.subtitle = Nil;
-    bulletinCopy.attachments = Nil;
-    
-    bulletinCopy.content = contentCopy;
-    return bulletinCopy;
+	if (isEnabled() && hiddenOnHomescreen() && isHiddenIdentifier([self sectionID]))
+		return YES;
+	else
+		return NO;
 }
 
-static BBBulletin* restoreBulletinContent(BBBulletin *bulletin)
+-(id)message
 {
-    @autoreleasepool {
-        [lock lock];
-
-        MessageData *messageData = [identifierForMsgData objectForKey: [bulletin bulletinID]];
-
-        if (messageData){
-            BBBulletin *bulletinCopy = [bulletin copy];
-            BBContent *contentCopy = [bulletin.content copy];
-
-            contentCopy.message = messageData.message;
-            contentCopy.subtitle = messageData.subtitle;
-            bulletin.attachments = messageData.attachments;
-            
-            bulletinCopy.content = contentCopy;
-            bulletin = bulletinCopy;
-        }
-
-        [lock unlock];
-        
-        return bulletin;
-    }
+	if ([self shouldHideBulletin])
+		return notificationText();
+	else
+		return %orig;
 }
 
-%hook BBBulletin
-
--(id)initWithCoder:(id)coder
+-(id)attachmentImage
 {
-    if (isEnabled() && (hiddenOnHomescreen() || allHidden())){
-        self = %orig();
-
-        if (!allHidden())
-            addToDict(self);
-        
-        if (isMobileMail([self sectionID])){
-            [self setMessage: @" "];
-            [self setSubtitle: notificationText()];
-            [self setAttachments: Nil];
-        } else if (isHiddenIdentifier([self sectionID])){
-            [self setMessage: notificationText()];
-            [self setAttachments: Nil];
-        }
-        return self;
-
-    } else
-        return %orig();
+	if ([self shouldHideBulletin])
+		return Nil;
+	else
+		return %orig;
 }
 
 %end
 
-%hook SBLockScreenNotificationListController
+/** LOCKSCREEN **/
 
-- (void)observer:(id)arg1 addBulletin:(BBBulletin*)bulletin forFeed:(unsigned long long)arg3
+%hook SBAwayBulletinListItem
+
+%new
+-(NSString*)sectionID
 {
-    if (isEnabled()){
-        if (hiddenOnHomescreen() && !hiddenOnLockscreen())
-            bulletin = restoreBulletinContent(bulletin);
-        else if (hiddenOnLockscreen() && !allHidden())
-            bulletin = hideBulletinContent(bulletin);
-    }
-    %orig();
+	return [[[self bulletins] objectAtIndex: 0] sectionID];
+}
+
+%new
+-(BOOL)shouldHideBulletin
+{
+	if (isEnabled() && hiddenOnLockscreen() && isHiddenIdentifier([self sectionID]))
+		return YES;
+	else
+		return NO;
+}
+
+-(id)message
+{
+	if ([self shouldHideBulletin])
+		return notificationText();
+	else
+		return %orig;
+}
+
+-(id)subtitle
+{
+	if ([self shouldHideBulletin])
+		return Nil;
+	else
+		return %orig;
+}
+
+-(id)attachmentImageForKey:(id)arg1
+{
+	if ([self shouldHideBulletin])
+		return Nil;
+	else
+		return %orig;
 }
 
 %end
 
-%hook SBNotificationsAllModeBulletinInfo
+/** NOTIFICATION CENTER **/
 
--(id)_secondaryText
+%hook SBNotificationsBulletinInfo
+
+%new
+-(NSString*)sectionID
 {
-    @autoreleasepool {
-        if (isEnabled()){
-            [lock lock];
-
-            MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
-
-            if (hiddenOnHomescreen() && !hiddenInNotifcenter()){
-                NSString *message;
-
-                if (messageData)
-                    message = messageData.message;
-                else
-                    message = %orig;
-
-                [lock unlock];
-                return message;
-
-            } else if (hiddenInNotifcenter() && !allHidden() && isHiddenIdentifier(messageData.sectionID)){
-                [lock unlock];
-                return notificationText();
-            } else {
-                [lock unlock];
-                return %orig;
-            }
-        } else
-            return %orig;
-    }
+	return [[%c(BBBulletin) copyCachedBulletinWithBulletinID: [self identifier]] sectionID];
 }
 
--(id)_subtitleText
+%new
+-(BOOL)shouldHideBulletin
 {
-    @autoreleasepool {
-        if (isEnabled()){
-            [lock lock];
-            
-            MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
-
-            if (hiddenOnHomescreen() && !hiddenInNotifcenter()){
-                NSString *subtitle;
-
-                if (messageData)
-                    subtitle = messageData.subtitle;
-                else
-                    subtitle = %orig;
-                
-                [lock unlock];
-                return subtitle;
-
-            } else if (hiddenInNotifcenter() && !allHidden()){
-                if (isMobileMail(messageData.sectionID)){
-                    [lock unlock];
-                    return notificationText();
-                }
-                else if (isHiddenIdentifier(messageData.sectionID)){
-                    [lock unlock];
-                    return Nil;
-                } else
-                    return %orig;
-            } else
-                return %orig;
-        } else
-            return %orig;
-    }
+	if (isEnabled() && hiddenInNotifcenter() && isHiddenIdentifier([self sectionID]))
+		return YES;
+	else
+		return NO;
 }
 
-/* -(id)_attachmentImageToDisplay
+-(NSString*)_secondaryText
 {
-    [lock lock];
-    NSLog(@"Lock obtained: _attachmentImageToDisplay");
-    
-    MessageData *messageData = [identifierForMsgData objectForKey: [self identifier]];
-    BBAttachments *attachments = messageData.attachments;
-    
-    for (id object in attachments.clientSideComposedImageInfos)
-        NSLog(@"Object description: %@", [object description]);
+	if ([self shouldHideBulletin])
+		return notificationText();
+	else
+		return %orig;
+}
 
-    [lock unlock];
-    NSLog(@"Lock released: _attachmentImageToDiplay");
-
-    return %orig();
-} */
-
-%end
-
-%hook SBNotificationsAllModeViewController
-
-- (void)commitRemovalOfBulletin:(SBNotificationsAllModeBulletinInfo*)info fromSection:(id)arg2
+-(NSString*)_subtitleText
 {
-    if (isEnabled()){
-        [lock lock];
+	if ([self shouldHideBulletin])
+		return Nil;
+	else
+		return %orig;
+}
 
-        [identifierForMsgData removeObjectForKey: [info identifier]];
-        
-        [lock unlock];
-    }
-    %orig();
+-(id)_attachmentImageToDisplay
+{
+	if ([self shouldHideBulletin])
+		return Nil;
+	else
+		return %orig;
 }
 
 %end
