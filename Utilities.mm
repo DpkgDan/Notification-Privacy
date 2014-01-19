@@ -7,15 +7,9 @@ static NSString *_notificationText;
 static NSString *DEFAULT_TEXT = @"New Notification";
 
 static BOOL _isEnabled;
-
 static BOOL _hiddenOnLockscreen;
 static BOOL _hiddenOnHomescreen;
 static BOOL _hiddenInNotifcenter;
-
-NSDictionary* preferenceFile()
-{
-    return _preferenceFile;
-}
 
 NSString* notificationText()
 {
@@ -42,9 +36,14 @@ BOOL hiddenInNotifcenter()
     return _hiddenInNotifcenter;
 }
 
-BOOL allHidden()
+BOOL isHiddenIdentifier(NSString *identifier)
 {
-    return _hiddenOnLockscreen && _hiddenOnHomescreen && _hiddenInNotifcenter;
+    if (_preferenceFile == NULL)
+        return NO;
+    if ([[_preferenceFile objectForKey: identifier] boolValue])
+        return YES;
+    else
+        return NO;
 }
 
 static void loadSettings()
@@ -83,33 +82,6 @@ static void update (
 )
 {
     loadSettings();
-}
-
-BOOL isHiddenIdentifier(NSString *identifier)
-{
-    if (_preferenceFile == NULL)
-        return NO;
-    if ([[_preferenceFile objectForKey: identifier] boolValue])
-        return YES;
-    else
-        return NO;
-}
-
-static BOOL isMatch(NSString *matchString, NSString *identifier)
-{
-    if ([identifier isEqualToString: matchString] &&
-    isHiddenIdentifier(identifier))
-        return YES;
-    else
-        return NO;
-}
-
-BOOL isMobileMail(NSString *identifier)
-{
-    if (isMatch(@"com.apple.mobilemail", identifier))
-        return YES;
-    else
-        return NO;
 }
 
 void constructor()

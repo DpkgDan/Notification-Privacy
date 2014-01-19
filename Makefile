@@ -6,7 +6,7 @@ include theos/makefiles/common.mk
 
 TWEAK_NAME = NotificationPrivacy
 
-NotificationPrivacy_FILES = Tweak.xm Utilities.xm
+NotificationPrivacy_FILES = Tweak.xm Utilities.mm
 
 NotificationPrivacy_PRIVATE_FRAMEWORKS = BulletinBoard
 
