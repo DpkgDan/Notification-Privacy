@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>key</key>
+			<string>hiddenOnLockscreen</string>
+			<key>label</key>
+			<string>Hidden on Lockscreen</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>key</key>
+			<string>hiddenOnHomescreen</string>
+			<key>label</key>
+			<string>Hidden on Homescreen</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>key</key>
+			<string>hiddenInNotifcenter</string>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>label</key>
+			<string>Hidden in Notification Center</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -51,28 +51,28 @@ static void loadSettings()
 	_preferenceFile = [[NSDictionary alloc] initWithContentsOfFile: FILEPATH];
 
 	if (_preferenceFile) {
-        id object = [_preferenceFile objectForKey: @"NotificationText"];
-        _notificationText = (object ? object : DEFAULT_TEXT);
+		id object = [_preferenceFile objectForKey: @"NotificationText"];
+		_notificationText = (object ? object : DEFAULT_TEXT);
 
-        object = [_preferenceFile objectForKey: @"isEnabled"];
-        _isEnabled = (object ? [object boolValue] : YES);
+		object = [_preferenceFile objectForKey: @"isEnabled"];
+		_isEnabled = (object ? [object boolValue] : YES);
 
-        object = [_preferenceFile objectForKey: @"hiddenOnLockscreen"];
-        _hiddenOnLockscreen = (object ? [object boolValue] : YES);
-            
-        object = [_preferenceFile objectForKey: @"hiddenOnHomescreen"];
-        _hiddenOnHomescreen = (object ? [object boolValue] : YES);
-        
-        object = [_preferenceFile objectForKey: @"hiddenInNotifcenter"];
-        _hiddenInNotifcenter = (object ? [object boolValue] : NO);
+		object = [_preferenceFile objectForKey: @"hiddenOnLockscreen"];
+		_hiddenOnLockscreen = (object ? [object boolValue] : YES);
 
-    } else {
-    	_notificationText = DEFAULT_TEXT;
-        _isEnabled = YES;
-        _hiddenOnLockscreen = YES;
-        _hiddenOnHomescreen = YES;
-        _hiddenInNotifcenter = NO;
-    }
+		object = [_preferenceFile objectForKey: @"hiddenOnHomescreen"];
+		_hiddenOnHomescreen = (object ? [object boolValue] : YES);
+
+		object = [_preferenceFile objectForKey: @"hiddenInNotifcenter"];
+		_hiddenInNotifcenter = (object ? [object boolValue] : NO);
+	
+	} else {
+		_notificationText = DEFAULT_TEXT;
+		_isEnabled = YES;
+		_hiddenOnLockscreen = YES;
+		_hiddenOnHomescreen = YES;
+		_hiddenInNotifcenter = NO;
+	}
 }
 
 static void update (
