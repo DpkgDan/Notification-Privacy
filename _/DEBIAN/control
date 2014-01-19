@@ -3,9 +3,9 @@ Name: Notification Privacy
 Depends: firmware (>= 5), mobilesubstrate, preferenceloader, applist (>= 1.4.3)
 Conflicts: com.myrepospace.dpkgdan.notificationprivacy
 Architecture: iphoneos-arm
-Description: Tired of pesky push notifications invading your privacy? Notification Privacy is the tweak for you! Notification Privacy allows you to set a custom message the will appear in the push notifications of apps you select. Configure preferences in the Settings app under the “Notification Privacy” tab. Compatible with ARM64 (iPhone 5S).
+Description: Tired of pesky push notifications invading your privacy? Notification Privacy is the tweak for you! Notification Privacy allows you to set a custom message that will appear in the push notifications of apps you select. Additionally, you can set where you would like push notifications to be hidden (lockscreen, homescreen, notification center). Configure preferences in the Settings app under the “Notification Privacy” tab. Compatible with ARM64 (iPhone 5S).
 Maintainer: Dan Saba
 Author: Dan Saba
 Section: Tweaks
-Version: 1.0-37
+Version: 1.0-38
 Installed-Size: 180
