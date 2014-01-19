@@ -38,7 +38,7 @@ BOOL hiddenInNotifcenter()
 
 BOOL isHiddenIdentifier(NSString *identifier)
 {
-    if (_preferenceFile == NULL)
+    if (_preferenceFile == Nil)
         return NO;
     if ([[_preferenceFile objectForKey: identifier] boolValue])
         return YES;
@@ -48,11 +48,9 @@ BOOL isHiddenIdentifier(NSString *identifier)
 
 static void loadSettings()
 {
-    _preferenceFile = NULL;
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath: FILEPATH]){
-        _preferenceFile = [[NSDictionary alloc] initWithContentsOfFile: FILEPATH];
+	_preferenceFile = [[NSDictionary alloc] initWithContentsOfFile: FILEPATH];
 
+	if (_preferenceFile) {
         id object = [_preferenceFile objectForKey: @"NotificationText"];
         _notificationText = (object ? object : DEFAULT_TEXT);
 
@@ -69,7 +67,11 @@ static void loadSettings()
         _hiddenInNotifcenter = (object ? [object boolValue] : NO);
 
     } else {
-        _isEnabled = NO;
+    	_notificationText = DEFAULT_TEXT;
+        _isEnabled = YES;
+        _hiddenOnLockscreen = YES;
+        _hiddenOnHomescreen = YES;
+        _hiddenInNotifcenter = NO;
     }
 }
 
