@@ -1,5 +1,13 @@
 #import "Headers/Headers.h"
 
+static BOOL shouldHideTitle(id self)
+{
+	if ([self shouldHideBulletin] && titleHidden())
+		return YES;
+	else
+		return NO;
+}
+
 /** HOMESCREEN **/
 
 %hook SBBulletinBannerItem
@@ -19,15 +27,25 @@
 		return NO;
 }
 
--(id)message
+-(NSString*)title
 {
-	if ([self shouldHideBulletin])
+	if (shouldHideTitle(self))
 		return notificationText();
 	else
 		return %orig;
 }
 
--(id)attachmentImage
+-(NSString*)message
+{
+	if (shouldHideTitle(self))
+		return Nil;
+	else if ([self shouldHideBulletin])
+		return notificationText();
+	else
+		return %orig;
+}
+
+-(UIImage*)attachmentImage
 {
 	if ([self shouldHideBulletin])
 		return Nil;
@@ -56,15 +74,25 @@
 		return NO;
 }
 
--(id)message
+-(NSString*)title
 {
-	if ([self shouldHideBulletin])
+	if (shouldHideTitle(self))
 		return notificationText();
 	else
 		return %orig;
 }
 
--(id)subtitle
+-(NSString*)message
+{
+	if (shouldHideTitle(self))
+		return Nil;
+	else if ([self shouldHideBulletin])
+		return notificationText();
+	else
+		return %orig;
+}
+
+-(NSString*)subtitle
 {
 	if ([self shouldHideBulletin])
 		return Nil;
@@ -72,7 +100,7 @@
 		return %orig;
 }
 
--(id)attachmentImageForKey:(id)arg1
+-(UIImage*)attachmentImageForKey:(id)arg1
 {
 	if ([self shouldHideBulletin])
 		return Nil;
@@ -101,9 +129,19 @@
 		return NO;
 }
 
+-(NSString*)_primaryText
+{
+	if (shouldHideTitle(self))
+		return notificationText();
+	else
+		return %orig;
+}
+
 -(NSString*)_secondaryText
 {
-	if ([self shouldHideBulletin])
+	if (shouldHideTitle(self))
+		return Nil;
+	else if ([self shouldHideBulletin])
 		return notificationText();
 	else
 		return %orig;
@@ -117,7 +155,7 @@
 		return %orig;
 }
 
--(id)_attachmentImageToDisplay
+-(UIImage*)_attachmentImageToDisplay
 {
 	if ([self shouldHideBulletin])
 		return Nil;

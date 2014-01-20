@@ -46,6 +46,26 @@
 			<key>PostNotification</key>
 			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
 		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Enable if you would like to hide the title of push notifications. This is often the app name or the sender.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>key</key>
+			<string>titleHidden</string>
+			<key>defaults</key>
+			<string>com.dpkgdan.notificationprivacy</string>
+			<key>label</key>
+			<string>Hide Title</string>
+			<key>PostNotification</key>
+			<string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+		</dict>
 	</array>
 </dict>
 </plist>

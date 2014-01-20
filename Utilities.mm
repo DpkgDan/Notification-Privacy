@@ -10,6 +10,7 @@ static BOOL _isEnabled;
 static BOOL _hiddenOnLockscreen;
 static BOOL _hiddenOnHomescreen;
 static BOOL _hiddenInNotifcenter;
+static BOOL _titleHidden;
 
 NSString* notificationText()
 {
@@ -34,6 +35,11 @@ BOOL hiddenOnHomescreen()
 BOOL hiddenInNotifcenter()
 {
     return _hiddenInNotifcenter;
+}
+
+BOOL titleHidden()
+{
+	return _titleHidden;
 }
 
 BOOL isHiddenIdentifier(NSString *identifier)
@@ -65,6 +71,9 @@ static void loadSettings()
 
 		object = [_preferenceFile objectForKey: @"hiddenInNotifcenter"];
 		_hiddenInNotifcenter = (object ? [object boolValue] : NO);
+		
+		object = [_preferenceFile objectForKey: @"titleHidden"];
+		_titleHidden = (object ? [object boolValue] : NO);
 	
 	} else {
 		_notificationText = DEFAULT_TEXT;
@@ -72,6 +81,7 @@ static void loadSettings()
 		_hiddenOnLockscreen = YES;
 		_hiddenOnHomescreen = YES;
 		_hiddenInNotifcenter = NO;
+		_titleHidden = NO;
 	}
 }
 
