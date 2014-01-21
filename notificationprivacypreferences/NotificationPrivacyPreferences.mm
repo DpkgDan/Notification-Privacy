@@ -7,7 +7,7 @@
 
 @end
 
-@interface PrivacyOptionsListController : PSListController {
+@interface OptionsListController : PSListController {
 }
 -(id)specifiers;
 
@@ -30,10 +30,10 @@
 
 @end
 
-@implementation PrivacyOptionsListController
+@implementation OptionsListController
 - (id)specifiers {
 	if(_specifiers == nil) {
-		_specifiers = [self loadSpecifiersFromPlistName:@"PrivacyOptions" target:self];
+		_specifiers = [self loadSpecifiersFromPlistName:@"Options" target:self];
 	}
 	return _specifiers;
 }

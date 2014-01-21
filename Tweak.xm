@@ -1,8 +1,10 @@
 #import "Headers/Headers.h"
 
+static NPSettings *settings;
+
 static BOOL shouldHideTitle(id self)
 {
-	if ([self shouldHideBulletin] && titleHidden())
+	if ([self shouldHideBulletin] && settings.titleHidden)
 		return YES;
 	else
 		return NO;
@@ -21,7 +23,8 @@ static BOOL shouldHideTitle(id self)
 %new
 -(BOOL)shouldHideBulletin
 {
-	if (isEnabled() && hiddenOnHomescreen() && isHiddenIdentifier([self sectionID]))
+	if (settings.isEnabled && settings.hiddenOnHomescreen &&
+	 [settings isHiddenIdentifier: [self sectionID]])
 		return YES;
 	else
 		return NO;
@@ -30,7 +33,7 @@ static BOOL shouldHideTitle(id self)
 -(NSString*)title
 {
 	if (shouldHideTitle(self))
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -40,7 +43,7 @@ static BOOL shouldHideTitle(id self)
 	if (shouldHideTitle(self))
 		return Nil;
 	else if ([self shouldHideBulletin])
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -68,7 +71,8 @@ static BOOL shouldHideTitle(id self)
 %new
 -(BOOL)shouldHideBulletin
 {
-	if (isEnabled() && hiddenOnLockscreen() && isHiddenIdentifier([self sectionID]))
+	if (settings.isEnabled && settings.hiddenOnLockscreen
+	&& [settings isHiddenIdentifier:[self sectionID]])
 		return YES;
 	else
 		return NO;
@@ -77,7 +81,7 @@ static BOOL shouldHideTitle(id self)
 -(NSString*)title
 {
 	if (shouldHideTitle(self))
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -87,7 +91,7 @@ static BOOL shouldHideTitle(id self)
 	if (shouldHideTitle(self))
 		return Nil;
 	else if ([self shouldHideBulletin])
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -123,7 +127,8 @@ static BOOL shouldHideTitle(id self)
 %new
 -(BOOL)shouldHideBulletin
 {
-	if (isEnabled() && hiddenInNotifcenter() && isHiddenIdentifier([self sectionID]))
+	if (settings.isEnabled && settings.hiddenInNotifcenter 
+	&& [settings isHiddenIdentifier: [self sectionID]])
 		return YES;
 	else
 		return NO;
@@ -132,7 +137,7 @@ static BOOL shouldHideTitle(id self)
 -(NSString*)_primaryText
 {
 	if (shouldHideTitle(self))
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -142,7 +147,7 @@ static BOOL shouldHideTitle(id self)
 	if (shouldHideTitle(self))
 		return Nil;
 	else if ([self shouldHideBulletin])
-		return notificationText();
+		return settings.notificationText;
 	else
 		return %orig;
 }
@@ -167,5 +172,5 @@ static BOOL shouldHideTitle(id self)
 
 %ctor
 {
-    constructor();
+    settings = [NPSettings sharedInstance];
 }

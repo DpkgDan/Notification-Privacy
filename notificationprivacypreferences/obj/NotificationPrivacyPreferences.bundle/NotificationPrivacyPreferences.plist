@@ -22,37 +22,17 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Choose where you would like to hide push notifications.</string>
+			<string>Set your personal preferences.</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSLinkCell</string>
 			<key>detail</key>
-			<string>PrivacyOptionsListController</string>
+			<string>OptionsListController</string>
 			<key>isController</key>
 			<string>1</string>
 			<key>label</key>
-			<string>Privacy Options</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Enter the text you would like hidden push notifications to display.</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-            <string>PSEditTextCell</string>
-            <key>defaults</key>
-            <string>com.dpkgdan.notificationprivacy</string>
-            <key>key</key>
-            <string>NotificationText</string>
-            <key>label</key>
-            <string>Notification Text:</string>
-            <key>default</key>
-            <string>New Notification</string>
-            <key>PostNotification</key>
-            <string>com.dpkgdan.notificationprivacy.settingsupdated</string>
+			<string>Options</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -110,6 +90,24 @@
 			<string>1</string>
 			<key>label</key>
 			<string>Hidden Apps</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Select an Activator gesture to toggle Notification Privacy on and off.</string>
+		</dict>
+		<dict>
+		  <key>cell</key>
+		  <string>PSLinkCell</string>
+		  <key>label</key>
+		  <string>Activator Gestures</string>
+		  <key>isController</key>
+		  <string>1</string>
+		  <key>bundle</key>
+		  <string>LibActivator</string>
+		  <key>activatorListener</key>
+		  <string>com.dpkgdan.notificationprivacy</string>
 		</dict>
 		<dict>
 			<key>cell</key>
