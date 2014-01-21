@@ -10,6 +10,10 @@
 	</array>
 	<key>description</key>
 	<string>Toggle Notification Privacy on and off.</string>
+	<key>small-icons</key>
+	<array>
+		<string>/Library/PreferenceBundles/NotificationPrivacyPreferences.bundle/notificationprivacy.png</string>
+	</array>
 	<key>title</key>
 	<string>Notification Privacy</string>
 </dict>

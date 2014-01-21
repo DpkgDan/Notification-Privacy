@@ -42,7 +42,7 @@ static NPSettings *_sharedInstance;
 
 -(BOOL)isHiddenIdentifier:(NSString*)identifier
 {
-	if (_preferenceFile == Nil || identifier == Nil)
+    if (_preferenceFile == Nil || identifier == Nil)
         return NO;
     if ([[_preferenceFile objectForKey: identifier] boolValue])
         return YES;
