@@ -60,6 +60,28 @@ static BOOL shouldHideTitle(id self)
 
 /** LOCKSCREEN **/
 
+%hook SBLockScreenNotificationListController
+
+%new
+-(BOOL)shouldHideBulletin:(NSString*)identifier
+{
+	if (settings.isEnabled && settings.removedFromLockscreen &&
+	[settings isHiddenIdentifier: identifier])
+		return YES;
+	else
+		return NO;
+}
+
+- (void)observer:(id)arg1 addBulletin:(BBBulletin*)bulletin forFeed:(unsigned long long)arg3
+{
+	if ([self shouldHideBulletin: bulletin.sectionID])
+		return;
+	else
+		%orig();
+}
+
+%end
+
 %hook SBAwayBulletinListItem
 
 %new

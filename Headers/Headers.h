@@ -41,6 +41,12 @@
 
 @end
 
+@interface SBLockScreenNotificationListController
+
+-(BOOL)shouldHideBulletin:(NSString*)identifier;
+
+@end
+
 @interface SBAwayBulletinListItem
 
 -(NSArray*)bulletins;
