@@ -21,8 +21,6 @@
 @property (readonly) BOOL hiddenOnHomescreen;
 @property (readonly) BOOL hiddenInNotifcenter;
 @property (readonly) BOOL titleHidden;
-@property (readonly) BOOL removedFromLockscreen;
-@property (readonly) BOOL vibrateWhenRemoved;
 @property (readonly) LOCKSCREEN_OPTIONS lockscreenOptions;
 
 +(id)sharedInstance;
