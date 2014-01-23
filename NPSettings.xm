@@ -1,3 +1,4 @@
+#import "Headers/Headers.h"
 #import "Headers/NPSettings.h"
 #import <CoreFoundation/CoreFoundation.h>
 
@@ -31,9 +32,9 @@ static NPSettings *_sharedInstance;
 		object = [_preferenceFile objectForKey: @"titleHidden"];
 		_titleHidden = (object ? [object boolValue] : NO);
 		
-		object = [_preferenceFile objectForKey: @"removedFromLockscreen"];
-		_removedFromLockscreen = (object ? [object boolValue] : NO);
-
+		object = [_preferenceFile objectForKey: @"lockscreenOptions"];
+		_lockscreenOptions = (object ? (LOCKSCREEN_OPTIONS)[object intValue] : VISIBLE);
+		
 	} else {
 		_isEnabled = NO;
 	}
@@ -108,7 +109,7 @@ static void update (
 
 +(id)sharedInstance
 {
-	if (_sharedInstance == Nil){
+	if (!_sharedInstance){
 		_sharedInstance = [NPSettings new];
 		return _sharedInstance;
 	} else

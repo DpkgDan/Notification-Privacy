@@ -1,4 +1,6 @@
 #import "Headers/Headers.h"
+#import "Headers/NPSettings.h"
+#import <AudioToolbox/AudioServices.h>
 
 static NPSettings *settings;
 
@@ -65,8 +67,8 @@ static BOOL shouldHideTitle(id self)
 %new
 -(BOOL)shouldHideBulletin:(NSString*)identifier
 {
-	if (settings.isEnabled && settings.removedFromLockscreen &&
-	[settings isHiddenIdentifier: identifier])
+	if (settings.isEnabled && (settings.lockscreenOptions == INVISIBLE_VIBRATE || 
+	settings.lockscreenOptions == INVISIBLE_NO_VIBRATE) && [settings isHiddenIdentifier: identifier])
 		return YES;
 	else
 		return NO;
@@ -74,8 +76,11 @@ static BOOL shouldHideTitle(id self)
 
 - (void)observer:(id)arg1 addBulletin:(BBBulletin*)bulletin forFeed:(unsigned long long)arg3
 {
-	if ([self shouldHideBulletin: bulletin.sectionID])
+	if ([self shouldHideBulletin: bulletin.sectionID]){
+		if (settings.lockscreenOptions == INVISIBLE_VIBRATE)
+			AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 		return;
+	}
 	else
 		%orig();
 }

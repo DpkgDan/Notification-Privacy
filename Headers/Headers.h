@@ -1,4 +1,8 @@
-#import "NPSettings.h"
+typedef enum LOCKSCREEN_OPTIONS {
+	VISIBLE,
+	INVISIBLE_VIBRATE,
+	INVISIBLE_NO_VIBRATE
+} LOCKSCREEN_OPTIONS;
 
 @class BBObserver;
 

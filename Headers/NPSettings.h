@@ -11,7 +11,8 @@
 	BOOL _hiddenOnHomescreen;
 	BOOL _hiddenInNotifcenter;
 	BOOL _titleHidden;
-	BOOL _removedFromLockscreen;
+	
+	LOCKSCREEN_OPTIONS _lockscreenOptions;
 }
 
 @property (readonly) NSString * notificationText;
@@ -21,6 +22,8 @@
 @property (readonly) BOOL hiddenInNotifcenter;
 @property (readonly) BOOL titleHidden;
 @property (readonly) BOOL removedFromLockscreen;
+@property (readonly) BOOL vibrateWhenRemoved;
+@property (readonly) LOCKSCREEN_OPTIONS lockscreenOptions;
 
 +(id)sharedInstance;
 -(BOOL)isHiddenIdentifier:(NSString*)identifier;

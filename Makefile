@@ -7,7 +7,7 @@ include theos/makefiles/common.mk
 TWEAK_NAME = NotificationPrivacy
 
 NotificationPrivacy_FILES = Tweak.xm NPSettings.xm
-
+NotificationPrivacy_FRAMEWORKS = AudioToolbox
 NotificationPrivacy_PRIVATE_FRAMEWORKS = BulletinBoard
 
 include $(THEOS_MAKE_PATH)/tweak.mk
